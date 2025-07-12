@@ -1,35 +1,50 @@
 import { useState } from 'react';
-import { connectWallet, registerUser } from '../utils/blockchain';
+import { connectWallet, disconnectWallet, registerUser } from '../utils/blockchain';
 
-function WalletConnect({ setConnected, setUserName }) {
-  const [name, setName] = useState('');
+function WalletConnect({ setConnected, setWalletAddress }) {
+  const [address, setAddress] = useState('');
 
   const handleConnect = async () => {
-    const account = await connectWallet();
-    if (account) {
+    try {
+      const walletAddress = await connectWallet();
+      setAddress(walletAddress);
       setConnected(true);
-      if (name) {
-        await registerUser(name);
-        setUserName(name);
-      }
+      setWalletAddress(walletAddress);
+      await registerUser(); // Register with wallet address only
+    } catch (error) {
+      console.error('Failed to connect:', error);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    try {
+      await disconnectWallet();
+      setAddress('');
+      setConnected(false);
+      setWalletAddress('');
+    } catch (error) {
+      console.error('Failed to disconnect:', error);
     }
   };
 
   return (
-    <div className="flex gap-4">
-      <input
-        type="text"
-        placeholder="Enter your name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="px-2 py-1 bg-gray-800 rounded"
-      />
-      <button
-        onClick={handleConnect}
-        className="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg"
-      >
-        Connect Wallet
-      </button>
+    <div className="flex items-center gap-4">
+      {address ? (
+        <div
+          className="px-4 py-2 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-700"
+          onClick={handleDisconnect}
+          title="Disconnect"
+        >
+          {`${address.slice(0, 6)}...${address.slice(-4)}`}
+        </div>
+      ) : (
+        <button
+          onClick={handleConnect}
+          className="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg"
+        >
+          Connect Wallet
+        </button>
+      )}
     </div>
   );
 }
