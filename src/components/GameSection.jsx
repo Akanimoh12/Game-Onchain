@@ -45,7 +45,7 @@ function GameSection() {
 
   useEffect(() => {
     if (flippedCards.length === 2) {
-      const [first, Slo, second] = flippedCards;
+      const [first, second] = flippedCards;
       const firstCard = cards.find(card => card.id === first);
       const secondCard = cards.find(card => card.id === second);
       if (firstCard.icon === secondCard.icon) {
