@@ -13,6 +13,7 @@ function GameSection({ walletAddress }) {
   const [gameOver, setGameOver] = useState(false);
   const [showClaimPopup, setShowClaimPopup] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
+  const [showForfeitButton, setShowForfeitButton] = useState(false); // New state for forfeit button
 
   // Initialize game cards
   const initializeCards = () => {
@@ -29,17 +30,6 @@ function GameSection({ walletAddress }) {
   // Handle starting a new game
   const handleStartGame = async () => {
     try {
-      const gameState = await getGameState(walletAddress);
-      console.log('Current game state:', gameState);
-
-      // Show popup only if game state is Won (2) or Lost (3)
-      if (gameState === 2 || gameState === 3) {
-        setPendingAction(gameState);
-        setShowClaimPopup(true);
-        return;
-      }
-
-      // Proceed to start a new game
       await startGame();
       setCards(initializeCards());
       setLives(4);
@@ -47,26 +37,32 @@ function GameSection({ walletAddress }) {
       setFlippedCards([]);
       setGameStarted(true);
       setGameOver(false);
+      setShowForfeitButton(false); // Hide forfeit button on successful start
     } catch (error) {
       console.error('Failed to start game:', error);
+      // Check if the error is "Finish or claim previous game"
+      if (error.reason === 'Finish or claim previous game') {
+        setShowForfeitButton(true); // Show forfeit button
+      }
     }
   };
 
-  // Handle claiming the pending reward
-  const handleClaimPendingReward = async () => {
+  // Handle forfeiting and claiming the loss reward
+  const handleForfeitAndClaim = async () => {
     try {
-      await claimReward();
-      setShowClaimPopup(false);
-      setPendingAction(null);
-    } catch (error) {
-      console.error('Failed to claim pending reward:', error);
-    }
-  };
+      const gameState = await getGameState(walletAddress);
+      console.log('Current game state:', gameState);
 
-  // Close the popup without claiming
-  const closePopup = () => {
-    setShowClaimPopup(false);
-    setPendingAction(null);
+      // If game is Active (1), report loss to set state to Lost (3)
+      if (gameState === 1) {
+        await reportLoss();
+      }
+      // Claim the reward (0.0005 ETH for loss, or 0.002 ETH if won)
+      await claimReward();
+      setShowForfeitButton(false); // Hide forfeit button
+    } catch (error) {
+      console.error('Failed to forfeit and claim:', error);
+    }
   };
 
   // Handle card flip
@@ -134,12 +130,22 @@ function GameSection({ walletAddress }) {
   return (
     <div className="text-center">
       {!gameStarted && !gameOver ? (
-        <button
-          onClick={handleStartGame}
-          className="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg"
-        >
-          Pay 0.001 ETH to Play
-        </button>
+        <div className="flex flex-col items-center gap-4">
+          <button
+            onClick={handleStartGame}
+            className="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg"
+          >
+            Pay 0.001 ETH to Play
+          </button>
+          {showForfeitButton && (
+            <button
+              onClick={handleForfeitAndClaim}
+              className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg"
+            >
+              Forfeit Previous Game & Claim Reward
+            </button>
+          )}
+        </div>
       ) : (
         <>
           <LifeIndicator lives={lives} />
@@ -148,7 +154,7 @@ function GameSection({ walletAddress }) {
               <Card
                 key={card.id}
                 card={card}
-                onFlip={flipCard} // Ensure onFlip is passed correctly
+                onFlip={flipCard}
               />
             ))}
           </div>
@@ -156,7 +162,7 @@ function GameSection({ walletAddress }) {
             <div className="mt-4 animate-pulse">
               <p className="text-2xl text-green-500">You Won!</p>
               <button
-                onClick={handleClaimPendingReward}
+                onClick={handleForfeitAndClaim}
                 className="px-4 py-2 bg-green-500 rounded-lg mt-2"
               >
                 Claim 0.002 ETH
@@ -167,7 +173,7 @@ function GameSection({ walletAddress }) {
             <div className="mt-4">
               <p className="text-2xl text-red-500">Game Over! You lost.</p>
               <button
-                onClick={handleClaimPendingReward}
+                onClick={handleForfeitAndClaim}
                 className="px-4 py-2 bg-green-500 rounded-lg mt-2"
               >
                 Claim 0.0005 ETH
@@ -194,13 +200,13 @@ function GameSection({ walletAddress }) {
             )}
             <div className="mt-4 flex justify-center gap-4">
               <button
-                onClick={handleClaimPendingReward}
+                onClick={handleForfeitAndClaim}
                 className="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg"
               >
                 Claim Reward
               </button>
               <button
-                onClick={closePopup}
+                onClick={() => setShowClaimPopup(false)}
                 className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg"
               >
                 Cancel

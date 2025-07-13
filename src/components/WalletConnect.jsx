@@ -40,7 +40,7 @@ function WalletConnect({ setConnected, setWalletAddress }) {
       ) : (
         <button
           onClick={handleConnect}
-          className="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg"
+          className="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg font-bold"
         >
           Connect Wallet
         </button>

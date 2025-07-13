@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 function MusicToggle() {
   const [playing, setPlaying] = useState(false);
-  const audio = new Audio('/path-to-game-music.mp3'); // Add your music file
+  const audio = new Audio('/sound.wav'); // Add your music file
 
   const toggleMusic = () => {
     if (playing) audio.pause();

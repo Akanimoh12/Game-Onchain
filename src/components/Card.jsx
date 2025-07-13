@@ -6,7 +6,7 @@ function Card({ card, onFlip }) {
         card.flipped || card.matched ? 'rotate-y-180 scale-105' : ''
       } ${card.matched ? 'border-2 border-green-500' : ''}`}
     >
-      <span className="text-4xl">{card.flipped || card.matched ? card.icon : '?'}</span>
+      <span className="text-6xl">{card.flipped || card.matched ? card.icon : '?'}</span>
     </div>
   );
 }
