@@ -29,6 +29,7 @@ Chess Flip Game is a blockchain-based memory matching game built with React and 
    ```bash
    git clone https://github.com/Akanimoh12/Game-Onchain.git
    cd Game-Onchain
+   npm run dev
 
 ## LIVE LINK
 https://chess-flip-onchain.vercel.app/
