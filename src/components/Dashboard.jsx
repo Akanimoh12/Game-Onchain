@@ -39,7 +39,7 @@ function Dashboard() {
           {section === "game" && connected ? (
             <GameSection walletAddress={walletAddress} />
           ) : !connected && section === "game" ? (
-            <p>Connect wallet to play</p>
+            <p>Connect your wallet to play</p>
           ) : null}
           {section === "stats" && connected ? (
             <StatsSection walletAddress={walletAddress} />
