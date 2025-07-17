@@ -20,8 +20,8 @@ function StatsSection({ walletAddress }) {
       <p>Wins: {stats.wins.toString()}</p>
       <p>Losses: {stats.losses.toString()}</p>
       <p>Times Played: {stats.timesPlayed.toString()}</p>
-      <p>Amount Spent: {ethers.formatEther(stats.amountSpent)} ETH</p>
-      <p>Amount Rewarded: {ethers.formatEther(stats.amountRewarded)} ETH</p>
+      {/* <p>Amount Spent: {ethers.formatEther(stats.amountSpent)} ETH</p> */}
+      {/* <p>Amount Rewarded: {ethers.formatEther(stats.amountRewarded)} ETH</p> */}
     </div>
   );
 }
